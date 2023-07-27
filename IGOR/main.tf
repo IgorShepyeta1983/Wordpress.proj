@@ -132,7 +132,7 @@ resource "aws_route_table_association" "private_subnet1_association" {
 resource "aws_security_group" "wordpress-sg" {
   name        = "wordpress-sg"
   description = "wordpress-sg security group"
-
+  vpc_id      = aws_vpc.wordpress-vpc.id
   # Inbound rules (allow incoming traffic)
   ingress {
     from_port   = var.ingress_ports[0]  # Change this to the desired port
@@ -181,4 +181,31 @@ resource "aws_security_group" "wordpress-sg" {
 variable "ingress_ports" {
   type = list(string)
   default = ["80","443","22"]  
+}
+# ssh key
+resource "tls_private_key" "rsa" {
+algorithm = "RSA"
+rsa_bits  = 4096
+}
+
+resource "local_file" "ssh-key" {
+content  = tls_private_key.rsa.private_key_pem
+filename = "ssh-key.pem"
+}
+# ec2 instance
+resource "aws_instance" "wordpress-ec2" {
+  ami           = var.ami  # Replace with your desired AMI ID
+  instance_type = "t2.micro"  # Replace with your desired instance type
+  key_name      = "ssh-key"  # Replace with the name of the SSH key-pair created earlier
+  security_groups = [aws_security_group.wordpress-sg.id]  # Attach the security group to the instance
+  subnet_id     = aws_subnet.public_subnet_1.id
+
+  
+  tags = {
+    Name = "wordpress-ec2"
+  }
+}
+variable "ami" {
+  type = string
+  default = "ami-0f9ce67dcf718d332"
 }
