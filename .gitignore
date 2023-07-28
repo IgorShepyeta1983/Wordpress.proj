@@ -1,0 +1,13 @@
+# Ignore .tfstate and .tfstate.backup files
+**.tfstate*
+**.tfstate.backup
+
+# Ignore .terraform directories
+**.terraform*
+
+# Ignore .terraform.lock.hcl file
+.terraform.lock.hcl
+
+# Ignore .DS_Store files (macOS-specific)
+.DS_Store
+admin_accessKeys.csv
