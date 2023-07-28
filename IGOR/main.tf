@@ -209,3 +209,34 @@ variable "ami" {
   type = string
   default = "ami-0f9ce67dcf718d332"
 }
+# Database security group
+resource "aws_security_group" "rds-sg" {
+  name        = "rds-sg"
+  description = "rds-sg security group"
+  vpc_id      = aws_vpc.wordpress-vpc.id
+  # Inbound rules (allow incoming traffic)
+  ingress {
+    from_port   = 3306  # Change this to the desired port
+    to_port     = 3306 # Change this to the desired port
+    protocol    = "tcp"
+    
+  }
+  egress {
+    from_port   = 3306  # Change this to the desired port
+    to_port     = 3306  # Change this to the desired port
+    protocol    = "tcp"
+    
+  }
+  tags = {
+    Name = "rds-sg"
+}
+}
+# traffic between security groups 
+  resource "aws_security_group_rule" "allow_inbound_from_source_sg" {
+  type        = "ingress"
+  from_port   = 3306
+  to_port     = 3306
+  protocol    = "tcp" 
+  source_security_group_id = aws_security_group.wordpress-sg.id
+  security_group_id = aws_security_group.rds-sg.id
+}
